@@ -1,6 +1,6 @@
 # Raycasting
 
-# Building and Running
+## Building and Running
 
 This project uses [Maven](https://maven.apache.org/) to manage dependencies and the build process. 
 
@@ -13,7 +13,7 @@ To run the project directly from Maven, run ```mvn exec:java```.
 
 Most IDEs have built-in or plugin support for Maven projects, please consult your IDE documentation on how to use it.
 
-# Libaries Used
+## Libaries Used
 
 - [Lightweight Java Game Library 3.0 (LWJGL)](http://www.lwjgl.org/)
 - [Log4j2](http://logging.apache.org/log4j/2.x/)
