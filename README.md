@@ -17,5 +17,6 @@ Most IDEs have built-in or plugin support for Maven projects, please consult you
 
 - [Lightweight Java Game Library 3.0 (LWJGL)](http://www.lwjgl.org/)
 - [Log4j2](http://logging.apache.org/log4j/2.x/)
+- [LWJGL3 edu.purdue.ieee.csociety.raycasting.util.SharedLibraryLoader.java](https://github.com/badlogic/lwjgl3-maven-gradle)
 
 Check [pom.xml](pom.xml) for details.
