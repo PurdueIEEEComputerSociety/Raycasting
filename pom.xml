@@ -98,6 +98,7 @@
                     <executable>java</executable>
                     <mainClass>${raycasting.mainClass}</mainClass>
                     <arguments>
+                        <argument>-XstartOnFirstThread</argument>
                         <argument>-jar</argument>
                         <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
                     </arguments>
