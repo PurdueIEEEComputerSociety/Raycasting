@@ -1,5 +1,7 @@
 package edu.purdue.ieee.csociety.raycasting;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class Renderer {
 
     private final Main main;
@@ -15,6 +17,8 @@ public class Renderer {
     }
 
     public void startFrame() {
+        glClearColor(0.5F, 0.5F, 0.5F, 1F);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //  TODO prep for a frame
 
         //  Notify raycaster to prep for calls to fillStrip()
