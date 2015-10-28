@@ -135,7 +135,9 @@ public class Main {
 
         //  Register mouse callbacks
         mouseButtonCallback = GLFWMouseButtonCallback(this::handleMouseButtonEvent);
+        glfwSetMouseButtonCallback(windowHandle, mouseButtonCallback);
         cursorPosCallback = GLFWCursorPosCallback(this::handleCursorPositionEvent);
+        glfwSetCursorPosCallback(windowHandle, cursorPosCallback);
 
         //  Register window resize callback
         windowSizeChangeCallback = GLFWWindowSizeCallback(this::handleWindowResizeEvent);
