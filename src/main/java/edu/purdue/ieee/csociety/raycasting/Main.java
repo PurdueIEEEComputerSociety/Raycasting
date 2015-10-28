@@ -3,20 +3,16 @@ package edu.purdue.ieee.csociety.raycasting;
 import edu.purdue.ieee.csociety.raycasting.util.SharedLibraryLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.Sys;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GLContext;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.opengl.GL11.GL_TRUE;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.system.MemoryUtil.memDecodeUTF8;
 
@@ -67,10 +63,6 @@ public class Main {
      * Main renderer
      */
     private Renderer renderer;
-    /**
-     *
-     */
-    private int fullscreenQuadVbo;
 
     private final Raycaster raycaster;
 
@@ -117,7 +109,7 @@ public class Main {
         //  Window config
         glfwDefaultWindowHints();   //  Default hints
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); //  Hide window until we decide to show
-        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);   //  Do not allow resizing
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);   //  Allow resizing
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);  //  We want OGL v2.0 compat
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -164,27 +156,8 @@ public class Main {
             throw new RuntimeException("EXT_framebuffer_object not supported");
         }
 
-        //  Initialize OGL resources
-        createFullscreenQuad();
-
-        //  Set up renderer
-        renderer.startFrame();
-    }
-
-    private void createFullscreenQuad() {
-        fullscreenQuadVbo = glGenBuffers();     //  Allocate a VBO
-        glBindBuffer(GL_ARRAY_BUFFER, fullscreenQuadVbo);   //  Use the VBO we just allocated
-        ByteBuffer b = BufferUtils.createByteBuffer(2 * 4 * Float.BYTES);   //  Allocate space for 4 vertices
-        FloatBuffer fb = b.asFloatBuffer();
-        fb.put(-1F).put(-1F); //  Add (-1,-1) (top left)
-        fb.put(-1F).put(1F); //  Add (-1,1) (bottom left)
-        fb.put(1F).put(1F); //  Add (1,1) (bottom right)
-        fb.put(1F).put(-1F); //  Add (1,-1) (top right)
-        //  Convienently enough these will also be our UV coordinates
-        glBufferData(GL_ARRAY_BUFFER, b, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0L);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //  Initialize renderer
+        renderer.init();
     }
 
     private void handleKeyEvent(long window, int key, int scanCode, int action, int modifiers) {
