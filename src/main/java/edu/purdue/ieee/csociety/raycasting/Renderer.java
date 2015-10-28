@@ -12,6 +12,10 @@ public class Renderer {
         this.raycaster = raycaster;
     }
 
+    public void init() {
+        //  TODO
+    }
+
     public void onViewportSizeChanged(int newWidth, int newHeight) {
         raycaster.setViewportSize(newWidth,  newHeight);
     }
