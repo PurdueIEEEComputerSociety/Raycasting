@@ -56,6 +56,10 @@ public class Main {
      */
     private GLFWCursorPosCallback cursorPosCallback;
     /**
+     * Window size change handling callback
+     */
+    private GLFWWindowSizeCallback windowSizeChangeCallback;
+    /**
      * Window handle
      */
     private long windowHandle;
@@ -74,6 +78,7 @@ public class Main {
         //  TODO Replace this with your implementation, e.g.
         //  raycaster = new MyRaycaster();
         raycaster = new NOPRaycaster();
+        renderer = new Renderer(this, raycaster);
     }
 
     public void run() {
@@ -112,7 +117,7 @@ public class Main {
         //  Window config
         glfwDefaultWindowHints();   //  Default hints
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); //  Hide window until we decide to show
-        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);   //  Do not allow resizing
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);   //  Do not allow resizing
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);  //  We want OGL v2.0 compat
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -132,6 +137,9 @@ public class Main {
         mouseButtonCallback = GLFWMouseButtonCallback(this::handleMouseButtonEvent);
         cursorPosCallback = GLFWCursorPosCallback(this::handleCursorPositionEvent);
 
+        //  Register window resize callback
+        windowSizeChangeCallback = GLFWWindowSizeCallback(this::handleWindowResizeEvent);
+        glfwSetWindowSizeCallback(windowHandle, windowSizeChangeCallback);
 
         //  Center the window
         ByteBuffer videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -158,7 +166,6 @@ public class Main {
         createFullscreenQuad();
 
         //  Set up renderer
-        renderer = new Renderer(this, new NOPRaycaster());
         renderer.startFrame();
     }
 
@@ -192,6 +199,11 @@ public class Main {
 
     private void handleCursorPositionEvent(long window, double xPos, double yPos) {
         //  TODO
+    }
+
+    private void handleWindowResizeEvent(long window, int width, int height) {
+        LOGGER.debug("Window resized to {}x{}", width, height);
+        renderer.onViewportSizeChanged(width, height);
     }
 
     private void mainLoop() {
