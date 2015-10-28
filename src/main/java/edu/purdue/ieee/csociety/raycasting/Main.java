@@ -5,10 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.Sys;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWvidmode;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GLContext;
 
@@ -51,6 +48,18 @@ public class Main {
      */
     private GLFWKeyCallback keyCallback;
     /**
+     * Mouse button handling callback
+     */
+    private GLFWMouseButtonCallback mouseButtonCallback;
+    /**
+     * Cursor position handling callback
+     */
+    private GLFWCursorPosCallback cursorPosCallback;
+    /**
+     * Window size change handling callback
+     */
+    private GLFWWindowSizeCallback windowSizeChangeCallback;
+    /**
      * Window handle
      */
     private long windowHandle;
@@ -69,6 +78,7 @@ public class Main {
         //  TODO Replace this with your implementation, e.g.
         //  raycaster = new MyRaycaster();
         raycaster = new NOPRaycaster();
+        renderer = new Renderer(this, raycaster);
     }
 
     public void run() {
@@ -107,7 +117,7 @@ public class Main {
         //  Window config
         glfwDefaultWindowHints();   //  Default hints
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); //  Hide window until we decide to show
-        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);   //  Do not allow resizing
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);   //  Do not allow resizing
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);  //  We want OGL v2.0 compat
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -122,6 +132,16 @@ public class Main {
         //  Register key callback
         keyCallback = GLFWKeyCallback(this::handleKeyEvent);
         glfwSetKeyCallback(windowHandle, keyCallback);
+
+        //  Register mouse callbacks
+        mouseButtonCallback = GLFWMouseButtonCallback(this::handleMouseButtonEvent);
+        glfwSetMouseButtonCallback(windowHandle, mouseButtonCallback);
+        cursorPosCallback = GLFWCursorPosCallback(this::handleCursorPositionEvent);
+        glfwSetCursorPosCallback(windowHandle, cursorPosCallback);
+
+        //  Register window resize callback
+        windowSizeChangeCallback = GLFWWindowSizeCallback(this::handleWindowResizeEvent);
+        glfwSetWindowSizeCallback(windowHandle, windowSizeChangeCallback);
 
         //  Center the window
         ByteBuffer videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -148,7 +168,6 @@ public class Main {
         createFullscreenQuad();
 
         //  Set up renderer
-        renderer = new Renderer(this, new NOPRaycaster());
         renderer.startFrame();
     }
 
@@ -174,6 +193,19 @@ public class Main {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
+    }
+
+    private void handleMouseButtonEvent(long window, int button, int action, int modifiers) {
+        //  TODO
+    }
+
+    private void handleCursorPositionEvent(long window, double xPos, double yPos) {
+        //  TODO
+    }
+
+    private void handleWindowResizeEvent(long window, int width, int height) {
+        LOGGER.debug("Window resized to {}x{}", width, height);
+        renderer.onViewportSizeChanged(width, height);
     }
 
     private void mainLoop() {
