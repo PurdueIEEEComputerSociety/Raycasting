@@ -5,10 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.Sys;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWvidmode;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GLContext;
 
@@ -50,6 +47,14 @@ public class Main {
      * Input handling callback
      */
     private GLFWKeyCallback keyCallback;
+    /**
+     * Mouse button handling callback
+     */
+    private GLFWMouseButtonCallback mouseButtonCallback;
+    /**
+     * Cursor position handling callback
+     */
+    private GLFWCursorPosCallback cursorPosCallback;
     /**
      * Window handle
      */
@@ -123,6 +128,11 @@ public class Main {
         keyCallback = GLFWKeyCallback(this::handleKeyEvent);
         glfwSetKeyCallback(windowHandle, keyCallback);
 
+        //  Register mouse callbacks
+        mouseButtonCallback = GLFWMouseButtonCallback(this::handleMouseButtonEvent);
+        cursorPosCallback = GLFWCursorPosCallback(this::handleCursorPositionEvent);
+
+
         //  Center the window
         ByteBuffer videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(windowHandle,
@@ -174,6 +184,14 @@ public class Main {
         if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
             glfwSetWindowShouldClose(window, GL_TRUE);
         }
+    }
+
+    private void handleMouseButtonEvent(long window, int button, int action, int modifiers) {
+        //  TODO
+    }
+
+    private void handleCursorPositionEvent(long window, double xPos, double yPos) {
+        //  TODO
     }
 
     private void mainLoop() {
