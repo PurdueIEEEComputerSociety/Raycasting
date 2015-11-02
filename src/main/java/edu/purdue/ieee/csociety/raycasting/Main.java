@@ -1,5 +1,6 @@
 package edu.purdue.ieee.csociety.raycasting;
 
+import edu.purdue.ieee.csociety.raycasting.util.FrameTimer;
 import edu.purdue.ieee.csociety.raycasting.util.SharedLibraryLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +11,8 @@ import org.lwjgl.opengl.GLContext;
 
 import java.nio.ByteBuffer;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_TRUE;
@@ -65,6 +68,8 @@ public class Main {
     private Renderer renderer;
 
     private final Raycaster raycaster;
+
+    private final FrameTimer frameTimer;
     /**
      * The current width of the window
      */
@@ -75,6 +80,7 @@ public class Main {
     private int windowHeight;
 
     public Main() {
+        frameTimer = new FrameTimer(10, SECONDS);
         windowWidth = DEFAULT_WINDOW_WIDTH;
         windowHeight = DEFAULT_WINDOW_HEIGHT;
         //  TODO Replace this with your implementation, e.g.
@@ -168,6 +174,11 @@ public class Main {
 
         //  Initialize renderer
         renderer.init();
+
+        frameTimer.setOnEndIntervalAvgFrameTimeNanosCallback(
+                l -> LOGGER.debug("Avg frame time {} ns ({} ms)", l, NANOSECONDS.toMillis(l)));
+        frameTimer.setOnEndIntervalFpsCallback(
+                i -> LOGGER.debug("Average FPS {}", i));
     }
 
     private void handleKeyEvent(long window, int key, int scanCode, int action, int modifiers) {
@@ -201,6 +212,7 @@ public class Main {
         GLContext.createFromCurrent();
         //  Keep rendering until its time to exit
         while (glfwWindowShouldClose(windowHandle) == GL_FALSE) {
+            frameTimer.start();
             //  Prep the frame
             renderer.startFrame();
             //  Draw the frame
@@ -211,6 +223,7 @@ public class Main {
             glfwSwapBuffers(windowHandle);
             //  Poll for events
             glfwPollEvents();
+            frameTimer.end();
         }
     }
 
