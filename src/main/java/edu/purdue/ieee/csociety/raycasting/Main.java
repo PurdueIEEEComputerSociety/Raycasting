@@ -167,7 +167,7 @@ public class Main {
         ContextCapabilities capabilities = GLContext.createFromCurrent().getCapabilities();
 
         //  Initialize renderer
-        renderer.init();
+        renderer.init(windowWidth, windowHeight);
 
         //  Show window
         glfwShowWindow(windowHandle);
