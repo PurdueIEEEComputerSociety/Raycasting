@@ -1,9 +1,9 @@
 package edu.purdue.ieee.csociety.raycasting;
 
 /**
- * A NOP raycaster that only returns black
+ *
  */
-public class NOPRaycaster implements Raycaster {
+public class AJRaycaster implements Raycaster {
     @Override
     public void setViewportSize(int width, int height) {
         //  NOP
