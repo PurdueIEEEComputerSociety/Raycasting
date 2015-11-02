@@ -3,6 +3,7 @@ package edu.purdue.ieee.csociety.raycasting;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
@@ -26,6 +27,7 @@ public class Renderer {
     private float renderTextureV;
 
     private int[] columnPixels;
+    private IntBuffer columnPixelBuffer;
 
     private int clearColor;
 
@@ -54,6 +56,9 @@ public class Renderer {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         columnPixels = new int[rendererHeight];
+        columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * 4).
+                order(ByteOrder.BIG_ENDIAN).
+                asIntBuffer();
     }
 
     public void onViewportSizeChanged(int newWidth, int newHeight) {
@@ -66,6 +71,9 @@ public class Renderer {
         //  Resize column array
         if (heightChange) {
             columnPixels = new int[rendererHeight];
+            columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * 4).
+                    order(ByteOrder.BIG_ENDIAN).
+                    asIntBuffer();
         }
         //  Resize texture
         setTextureSize();
@@ -96,13 +104,13 @@ public class Renderer {
     public void renderFrame() {
         //  Repeatedly fetch a column of pixels from the raycaster
         glBindTexture(GL_TEXTURE_2D, renderTexture);
-        IntBuffer buffer = BufferUtils.createIntBuffer(rendererHeight);
         for (int xPos = 0; xPos < rendererWidth; xPos++) {
-            buffer.rewind();
+            columnPixelBuffer.rewind();
             raycaster.fillStrip(columnPixels, xPos);
-            buffer.put(columnPixels);
-            buffer.flip();
-            glTexSubImage2D(GL_TEXTURE_2D, 0, xPos, 0, 1, rendererHeight, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            columnPixelBuffer.put(columnPixels);
+            columnPixelBuffer.flip();
+            glTexSubImage2D(GL_TEXTURE_2D, 0, xPos, 0, 1, rendererHeight,
+                    GL_RGBA, GL_UNSIGNED_BYTE, columnPixelBuffer);
         }
         glBindTexture(GL_TEXTURE_2D, 0);
     }
