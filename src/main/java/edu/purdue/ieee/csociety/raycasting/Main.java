@@ -160,20 +160,17 @@ public class Main {
         //  Make OpenGL context current for this window
         glfwMakeContextCurrent(windowHandle);
 
-        //  V-sync
+        //  Swap buffers on every frame
         glfwSwapInterval(1);
 
-        //  Show window
-        glfwShowWindow(windowHandle);
-
-        //  Check for framebuffer support
+        //  Create context
         ContextCapabilities capabilities = GLContext.createFromCurrent().getCapabilities();
-        if (!capabilities.GL_EXT_framebuffer_object) {
-            throw new RuntimeException("EXT_framebuffer_object not supported");
-        }
 
         //  Initialize renderer
         renderer.init();
+
+        //  Show window
+        glfwShowWindow(windowHandle);
 
         frameTimer.setOnEndIntervalAvgFrameTimeNanosCallback(
                 l -> LOGGER.debug("Avg frame time {} ns ({} ms)", l, NANOSECONDS.toMillis(l)));
