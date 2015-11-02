@@ -36,7 +36,7 @@ public class FrameTimer {
             throw new IllegalArgumentException("Sample interval duration must be positive");
         }
         this.sampleIntervalNanos = timeUnit.toNanos(sampleInterval);
-        sampleIntervalSec = sampleIntervalNanos / 10e9D;
+        sampleIntervalSec = sampleIntervalNanos / 1e9D;
         onEndIntervalAvgFrameTimeNanosCallback = l -> {};
         onEndIntervalDurationNanosCallback = l -> {};
         onEndIntervalFpsCallback = i -> {};
