@@ -1,7 +1,7 @@
 package edu.purdue.ieee.csociety.raycasting;
 
 /**
- * A NOP raycaster that only returns black
+ * A NOP raycaster that only returns transparent black
  */
 public class NOPRaycaster implements Raycaster {
     @Override
