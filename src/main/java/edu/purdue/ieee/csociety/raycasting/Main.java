@@ -29,9 +29,9 @@ public class Main {
         main.run();
     }
 
-    private static final int WINDOW_WIDTH = 800;
+    private static final int DEFAULT_WINDOW_WIDTH = 800;
 
-    private static final int WINDOW_HEIGHT = 600;
+    private static final int DEFAULT_WINDOW_HEIGHT = 600;
 
     private static final String WINDOW_TITLE = "IEEE CSociety Raycaster";
 
@@ -65,8 +65,18 @@ public class Main {
     private Renderer renderer;
 
     private final Raycaster raycaster;
+    /**
+     * The current width of the window
+     */
+    private int windowWidth;
+    /**
+     * The current height of the window
+     */
+    private int windowHeight;
 
     public Main() {
+        windowWidth = DEFAULT_WINDOW_WIDTH;
+        windowHeight = DEFAULT_WINDOW_HEIGHT;
         //  TODO Replace this with your implementation, e.g.
         //  raycaster = new MyRaycaster();
         raycaster = new NOPRaycaster();
@@ -115,8 +125,8 @@ public class Main {
 
         String windowTitle = WINDOW_TITLE + ": " + raycaster.getClass().getSimpleName();
 
-        LOGGER.debug("Creating window {}x{} \"{}\"", WINDOW_WIDTH, WINDOW_HEIGHT, windowTitle);
-        windowHandle = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, windowTitle, NULL, NULL);
+        LOGGER.debug("Creating window {}x{} \"{}\"", windowWidth, windowHeight, windowTitle);
+        windowHandle = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Window creation failed");
         }
@@ -138,8 +148,8 @@ public class Main {
         //  Center the window
         ByteBuffer videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(windowHandle,
-                (GLFWvidmode.width(videoMode) - WINDOW_WIDTH) / 2,
-                (GLFWvidmode.height(videoMode) - WINDOW_HEIGHT) / 2);
+                (GLFWvidmode.width(videoMode) - windowWidth) / 2,
+                (GLFWvidmode.height(videoMode) - windowHeight) / 2);
 
         //  Make OpenGL context current for this window
         glfwMakeContextCurrent(windowHandle);
@@ -177,8 +187,14 @@ public class Main {
     }
 
     private void handleWindowResizeEvent(long window, int width, int height) {
-        LOGGER.debug("Window resized to {}x{}", width, height);
-        renderer.onViewportSizeChanged(width, height);
+        //  Ignore other windows
+        if (window != windowHandle) {
+            return;
+        }
+        windowWidth = width;
+        windowHeight = height;
+        LOGGER.debug("Window resized to {}x{}", windowWidth, windowHeight);
+        renderer.onViewportSizeChanged(windowWidth, windowHeight);
     }
 
     private void mainLoop() {
@@ -204,4 +220,19 @@ public class Main {
         keyCallback.release();
     }
 
+    /**
+     * Get the current width of the window
+     * @return The width of the window, in pixels
+     */
+    public int getWindowWidth() {
+        return windowWidth;
+    }
+
+    /**
+     * Get the current height of the window
+     * @return The height of the window, in pixels
+     */
+    public int getWindowHeight() {
+        return windowHeight;
+    }
 }
