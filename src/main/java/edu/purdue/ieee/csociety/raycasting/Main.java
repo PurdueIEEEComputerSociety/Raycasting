@@ -79,10 +79,13 @@ public class Main {
      */
     private int windowHeight;
 
+    private boolean vSync;
+
     public Main() {
         frameTimer = new FrameTimer(10, SECONDS);
         windowWidth = DEFAULT_WINDOW_WIDTH;
         windowHeight = DEFAULT_WINDOW_HEIGHT;
+        vSync = false;
         //  TODO Replace this with your implementation, e.g.
         //  raycaster = new MyRaycaster();
         raycaster = new NOPRaycaster();
@@ -161,7 +164,7 @@ public class Main {
         glfwMakeContextCurrent(windowHandle);
 
         //  V-sync
-        glfwSwapInterval(1);
+        glfwSwapInterval(vSync ? 1 : 0);
 
         //  Create context
         ContextCapabilities capabilities = GLContext.createFromCurrent().getCapabilities();
