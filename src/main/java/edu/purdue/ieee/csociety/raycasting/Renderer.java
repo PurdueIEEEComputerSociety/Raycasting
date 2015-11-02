@@ -12,6 +12,9 @@ public class Renderer {
     private int rendererWidth;
     private int rendererHeight;
 
+    private int displayWidth;
+    private int displayHeight;
+
     private int renderTexture;
 
     public Renderer(Main main, Raycaster raycaster) {
@@ -35,8 +38,11 @@ public class Renderer {
     }
 
     public void onViewportSizeChanged(int newWidth, int newHeight) {
-        rendererWidth = newWidth;
-        rendererHeight = newHeight;
+        displayWidth = newWidth;
+        displayHeight = newHeight;
+        //  TODO: This is where we'd implement supersampling
+        rendererWidth = displayWidth;
+        rendererHeight = displayHeight;
         //  Resize texture
         glBindTexture(GL_TEXTURE_2D, renderTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
