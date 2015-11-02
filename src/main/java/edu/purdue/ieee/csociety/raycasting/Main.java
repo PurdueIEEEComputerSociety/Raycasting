@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GLContext;
 
 import java.nio.ByteBuffer;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
@@ -79,10 +78,12 @@ public class Main {
      */
     private int windowHeight;
 
+    private String windowTitleBase;
+
     private boolean vSync;
 
     public Main() {
-        frameTimer = new FrameTimer(10, SECONDS);
+        frameTimer = new FrameTimer(1, SECONDS);
         windowWidth = DEFAULT_WINDOW_WIDTH;
         windowHeight = DEFAULT_WINDOW_HEIGHT;
         vSync = false;
@@ -132,10 +133,10 @@ public class Main {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);  //  We want OGL v2.0 compat
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-        String windowTitle = WINDOW_TITLE + ": " + raycaster.getClass().getSimpleName();
+        windowTitleBase = WINDOW_TITLE + ": " + raycaster.getClass().getSimpleName();
 
-        LOGGER.debug("Creating window {}x{} \"{}\"", windowWidth, windowHeight, windowTitle);
-        windowHandle = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
+        LOGGER.debug("Creating window {}x{} \"{}\"", windowWidth, windowHeight, windowTitleBase);
+        windowHandle = glfwCreateWindow(windowWidth, windowHeight, windowTitleBase, NULL, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Window creation failed");
         }
@@ -175,10 +176,8 @@ public class Main {
         //  Show window
         glfwShowWindow(windowHandle);
 
-        frameTimer.setOnEndIntervalAvgFrameTimeNanosCallback(
-                l -> LOGGER.debug("Avg frame time {} ns ({} ms)", l, NANOSECONDS.toMillis(l)));
         frameTimer.setOnEndIntervalFpsCallback(
-                i -> LOGGER.debug("Average FPS {}", i));
+                i -> glfwSetWindowTitle(windowHandle, windowTitleBase + " [" + i + " FPS]"));
     }
 
     private void handleKeyEvent(long window, int key, int scanCode, int action, int modifiers) {
@@ -235,6 +234,7 @@ public class Main {
 
     /**
      * Get the current width of the window
+     *
      * @return The width of the window, in pixels
      */
     public int getWindowWidth() {
@@ -243,6 +243,7 @@ public class Main {
 
     /**
      * Get the current height of the window
+     *
      * @return The height of the window, in pixels
      */
     public int getWindowHeight() {
