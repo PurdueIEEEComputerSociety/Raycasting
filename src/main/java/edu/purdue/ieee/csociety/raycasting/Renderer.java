@@ -20,6 +20,8 @@ public class Renderer {
     private int displayHeight;
 
     private int renderTexture;
+    private int renderTextureWidth;
+    private int renderTextureHeight;
 
     private int[] columnPixels;
 
@@ -35,13 +37,18 @@ public class Renderer {
         rendererWidth = initialWidth;
         rendererHeight = initialHeight;
         //  Create our output texture
+        //  Since OGL textures must be sizes of powers of two, we must find the smallest power of two
+        //  greater than or equal to our real size
+        //  When we render we simply discard the portion of the texture outside of the window
+        renderTextureWidth = nextPowerOfTwo(rendererWidth);
+        renderTextureHeight = nextPowerOfTwo(rendererHeight);
         glEnable(GL_TEXTURE_2D);
         renderTexture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, renderTexture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                rendererWidth, rendererHeight,
+                renderTextureWidth, renderTextureHeight,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -60,9 +67,11 @@ public class Renderer {
             columnPixels = new int[rendererHeight];
         }
         //  Resize texture
+        renderTextureWidth = nextPowerOfTwo(rendererWidth);
+        renderTextureHeight = nextPowerOfTwo(rendererHeight);
         glBindTexture(GL_TEXTURE_2D, renderTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                rendererWidth, rendererHeight,
+                renderTextureWidth, renderTextureHeight,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
         glBindTexture(GL_TEXTURE_2D, 0);
         //  Notify raycaster
@@ -98,4 +107,14 @@ public class Renderer {
         //  TODO Draw the result to the screen
     }
 
+    private int nextPowerOfTwo(int num) {
+        //  http://stackoverflow.com/a/365068
+        --num;
+        num |= num >> 1;
+        num |= num >> 2;
+        num |= num >> 4;
+        num |= num >> 8;
+        num |= num >> 16;
+        return num + 1;
+    }
 }
