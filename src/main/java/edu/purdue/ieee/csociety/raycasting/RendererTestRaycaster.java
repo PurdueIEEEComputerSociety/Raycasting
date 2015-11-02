@@ -1,5 +1,7 @@
 package edu.purdue.ieee.csociety.raycasting;
 
+import edu.purdue.ieee.csociety.raycasting.util.ColorUtils;
+
 import java.util.Arrays;
 
 /**
@@ -24,16 +26,14 @@ public class RendererTestRaycaster implements Raycaster {
     @Override
     public void fillStrip(int[] pixelOutput, int x) {
         //  Top half is a black to white gradient
-        int shade = 0xFF & (x * 255 / width);
-        int color = 0x000000FF | (shade << 24) | (shade << 16) | (shade << 8);
-        Arrays.fill(pixelOutput, 0, height / 2, color);
+        int shade = x * 255 / width;
+        Arrays.fill(pixelOutput, 0, height / 2, ColorUtils.gray(shade));
         //  Bottom half graduates between red, green, and blue
         int third = width / 3;
         int sixth = width / 6;
-        int redPower = 0xFF & (0xFF - Math.abs((x - sixth) * 255 / width));
-        int greenPower = 0xFF & (0xFF - Math.abs((x - third - sixth) * 255 / width));
-        int bluePower = 0xFF & (0xFF - Math.abs(x - third - third - sixth) * 255 / width);
-        color = 0x000000FF | (redPower << 24) | (greenPower << 16) | (bluePower << 8);
-        Arrays.fill(pixelOutput, height / 2, height, color);
+        int redPower = 0xFF - Math.abs((x - sixth) * 255 / width);
+        int greenPower = 0xFF - Math.abs((x - third - sixth) * 255 / width);
+        int bluePower = 0xFF - Math.abs(x - third - third - sixth) * 255 / width;
+        Arrays.fill(pixelOutput, height / 2, height, ColorUtils.color(redPower, greenPower, bluePower));
     }
 }
