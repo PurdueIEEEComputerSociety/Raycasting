@@ -129,7 +129,7 @@ public class Renderer {
         glTexCoord2f(renderTextureU, renderTextureV);
         glVertex2f(displayWidth, displayHeight);
         glTexCoord2f(renderTextureU, 0);
-        glVertex2f(displayWidth, displayHeight);
+        glVertex2f(displayWidth, 0);
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
     }
