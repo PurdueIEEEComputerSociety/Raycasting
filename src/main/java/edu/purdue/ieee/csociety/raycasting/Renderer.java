@@ -22,6 +22,8 @@ public class Renderer {
     private int renderTexture;
     private int renderTextureWidth;
     private int renderTextureHeight;
+    private float renderTextureU;
+    private float renderTextureV;
 
     private int[] columnPixels;
 
@@ -40,8 +42,7 @@ public class Renderer {
         //  Since OGL textures must be sizes of powers of two, we must find the smallest power of two
         //  greater than or equal to our real size
         //  When we render we simply discard the portion of the texture outside of the window
-        renderTextureWidth = nextPowerOfTwo(rendererWidth);
-        renderTextureHeight = nextPowerOfTwo(rendererHeight);
+        setTextureSize();
         glEnable(GL_TEXTURE_2D);
         renderTexture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, renderTexture);
@@ -67,8 +68,7 @@ public class Renderer {
             columnPixels = new int[rendererHeight];
         }
         //  Resize texture
-        renderTextureWidth = nextPowerOfTwo(rendererWidth);
-        renderTextureHeight = nextPowerOfTwo(rendererHeight);
+        setTextureSize();
         glBindTexture(GL_TEXTURE_2D, renderTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                 renderTextureWidth, renderTextureHeight,
@@ -76,6 +76,13 @@ public class Renderer {
         glBindTexture(GL_TEXTURE_2D, 0);
         //  Notify raycaster
         raycaster.setViewportSize(rendererWidth, rendererHeight);
+    }
+
+    private void setTextureSize() {
+        renderTextureWidth = nextPowerOfTwo(rendererWidth);
+        renderTextureHeight = nextPowerOfTwo(rendererHeight);
+        renderTextureU = rendererWidth / (float) renderTextureWidth;
+        renderTextureV = rendererHeight / (float) renderTextureHeight;
     }
 
     public void startFrame() {
@@ -87,7 +94,6 @@ public class Renderer {
     }
 
     public void renderFrame() {
-        //  TODO Update the render texture with data from the raycaster
         //  Repeatedly fetch a column of pixels from the raycaster
         glBindTexture(GL_TEXTURE_2D, renderTexture);
         IntBuffer buffer = BufferUtils.createIntBuffer(rendererHeight);
@@ -102,9 +108,30 @@ public class Renderer {
     }
 
     public void finishFrame() {
+        //  Clear OGL frame
         glClearColor(0.5F, 0.5F, 0.5F, 1F);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //  TODO Draw the result to the screen
+        //  Set up projection
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, displayWidth, 0, displayHeight, -1, 1);
+        glMatrixMode(GL_MODELVIEW);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, renderTexture);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthFunc(GL_ALWAYS);
+        glBegin(GL_TRIANGLE_FAN);
+        glTexCoord2f(0, 0);
+        glVertex2f(0, 0);
+        glTexCoord2f(0, renderTextureV);
+        glVertex2f(0, displayHeight);
+        glTexCoord2f(renderTextureU, renderTextureV);
+        glVertex2f(displayWidth, displayHeight);
+        glTexCoord2f(renderTextureU, 0);
+        glVertex2f(displayWidth, displayHeight);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     private int nextPowerOfTwo(int num) {
