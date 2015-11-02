@@ -160,7 +160,7 @@ public class Main {
         //  Make OpenGL context current for this window
         glfwMakeContextCurrent(windowHandle);
 
-        //  Swap buffers on every frame
+        //  V-sync
         glfwSwapInterval(1);
 
         //  Create context
