@@ -122,7 +122,7 @@ public class Renderer {
         //  Set up projection
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0, displayWidth, 0, displayHeight, -1, 1);
+        glOrtho(0, displayWidth, displayHeight, 0, -1, 1);
         glMatrixMode(GL_MODELVIEW);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, renderTexture);
