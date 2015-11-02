@@ -89,6 +89,8 @@ public class Renderer {
     private void setTextureSize() {
         renderTextureWidth = nextPowerOfTwo(rendererWidth);
         renderTextureHeight = nextPowerOfTwo(rendererHeight);
+        Main.LOGGER.debug("Texture resized to {}x{} (renderArea {}x{})",
+                renderTextureWidth, renderTextureHeight, rendererWidth, rendererHeight);
         renderTextureU = rendererWidth / (float) renderTextureWidth;
         renderTextureV = rendererHeight / (float) renderTextureHeight;
     }
@@ -122,6 +124,7 @@ public class Renderer {
         //  Set up projection
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
+        glViewport(0, 0, displayWidth, displayHeight);
         glOrtho(0, displayWidth, displayHeight, 0, -1, 1);
         glMatrixMode(GL_MODELVIEW);
         glEnable(GL_TEXTURE_2D);
