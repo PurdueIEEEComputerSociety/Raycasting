@@ -106,16 +106,13 @@ public class Renderer {
         displayWidth = newWidth;
         displayHeight = newHeight;
         //  TODO: This is where we'd implement supersampling
-        boolean heightChange = newHeight != rendererHeight;
         rendererWidth = displayWidth;
         rendererHeight = displayHeight;
-        //  Resize buffers if necessary
-        if (heightChange) {
-            columnPixels = new int[rendererHeight];
-            columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
-                    order(ByteOrder.BIG_ENDIAN).
-                    asIntBuffer();
-        }
+        //  Resize buffers
+        columnPixels = new int[rendererHeight];
+        columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
+                order(ByteOrder.BIG_ENDIAN).
+                asIntBuffer();
         //  Resize texture
         setTextureSize();
         glBindTexture(GL_TEXTURE_2D, renderTexture);
