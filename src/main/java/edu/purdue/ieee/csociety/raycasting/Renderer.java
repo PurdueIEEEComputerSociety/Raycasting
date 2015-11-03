@@ -11,24 +11,65 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
 
+    /**
+     * Reference back to main
+     */
     private final Main main;
+    /**
+     * Our raycaster
+     */
     private final Raycaster raycaster;
 
+    /**
+     * Width of the viewport (in pixels) for the raycaster
+     */
     private int rendererWidth;
+    /**
+     * Height of the viewport (in pixels) for the raycaster
+     */
     private int rendererHeight;
 
+    /**
+     * Width (in pixels) of the output space (window width)
+     */
     private int displayWidth;
+    /**
+     * Height (in pixels) of the output space (window height)
+     */
     private int displayHeight;
 
+    /**
+     * Handle to our output texture
+     */
     private int renderTexture;
+    /**
+     * True width of the output texture. Must be a power of 2
+     */
     private int renderTextureWidth;
+    /**
+     * True height of the output texture. Must be a power of 2
+     */
     private int renderTextureHeight;
+    /**
+     * The U coordinate of the clipped edge of the output texture (the nonzero edge of the viewport)
+     */
     private float renderTextureU;
+    /**
+     * The V coordinate of the clipped edge of the output texture (the nonzero edge of the viewport)
+     */
     private float renderTextureV;
 
+    /**
+     * Reusable array for transporting a column of pixel data from the raycaster to the texture buffer
+     */
     private int[] columnPixels;
+    /**
+     * The buffer containing the pixel data
+     */
     private IntBuffer columnPixelBuffer;
-
+    /**
+     * The color to clear the output texture to before painting with the raycaster
+     */
     private int clearColor;
 
     public Renderer(Main main, Raycaster raycaster) {
@@ -54,7 +95,7 @@ public class Renderer {
                 renderTextureWidth, renderTextureHeight,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
         glBindTexture(GL_TEXTURE_2D, 0);
-
+        //  Create our buffers
         columnPixels = new int[rendererHeight];
         columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
                 order(ByteOrder.BIG_ENDIAN).
@@ -68,7 +109,7 @@ public class Renderer {
         boolean heightChange = newHeight != rendererHeight;
         rendererWidth = displayWidth;
         rendererHeight = displayHeight;
-        //  Resize column array
+        //  Resize buffers if necessary
         if (heightChange) {
             columnPixels = new int[rendererHeight];
             columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
@@ -100,7 +141,6 @@ public class Renderer {
     }
 
     public void startFrame() {
-        //  TODO prep for a frame
         //  Clear column array
         Arrays.fill(columnPixels, clearColor);
         //  Notify raycaster to prep for calls to fillStrip()
@@ -135,11 +175,15 @@ public class Renderer {
         glMatrixMode(GL_MODELVIEW);
         //  Render a fullscreen quad
         //  The texture coordinates are rotated 90 degrees since our output texture is rotated 90 degrees
+        //  Bind output texture
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, renderTexture);
+        //  Enable alpha blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //  Ignore depth test
         glDepthFunc(GL_ALWAYS);
+        //  Draw two triangles to form a fullscreen quad
         glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(0, 0);
         glVertex2f(0, 0);
@@ -150,6 +194,7 @@ public class Renderer {
         glTexCoord2f(0, renderTextureV);
         glVertex2f(displayWidth, 0);
         glEnd();
+        //  Finish, unbind texture
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
