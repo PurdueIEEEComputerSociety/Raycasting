@@ -56,7 +56,7 @@ public class Renderer {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         columnPixels = new int[rendererHeight];
-        columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * 4).
+        columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
                 order(ByteOrder.BIG_ENDIAN).
                 asIntBuffer();
     }
@@ -71,7 +71,7 @@ public class Renderer {
         //  Resize column array
         if (heightChange) {
             columnPixels = new int[rendererHeight];
-            columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * 4).
+            columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
                     order(ByteOrder.BIG_ENDIAN).
                     asIntBuffer();
         }
@@ -87,12 +87,16 @@ public class Renderer {
     }
 
     private void setTextureSize() {
-        renderTextureWidth = nextPowerOfTwo(rendererWidth);
-        renderTextureHeight = nextPowerOfTwo(rendererHeight);
+        //  While this appears backwards, it actually is correct
+        //  Our texture is rotated 90 degrees so that the column space of the raycaster is actually the
+        //  row space of our texture, which is required for bulk pixel transfer to the GPU since texture data
+        //  is row-major
+        renderTextureWidth = nextPowerOfTwo(rendererHeight);
+        renderTextureHeight = nextPowerOfTwo(renderTextureWidth);
         Main.LOGGER.debug("Texture resized to {}x{} (renderArea {}x{})",
                 renderTextureWidth, renderTextureHeight, rendererWidth, rendererHeight);
-        renderTextureU = rendererWidth / (float) renderTextureWidth;
-        renderTextureV = rendererHeight / (float) renderTextureHeight;
+        renderTextureU = rendererHeight / (float) renderTextureWidth;
+        renderTextureV = rendererWidth / (float) renderTextureHeight;
     }
 
     public void startFrame() {
@@ -106,14 +110,16 @@ public class Renderer {
     public void renderFrame() {
         //  Repeatedly fetch a column of pixels from the raycaster
         glBindTexture(GL_TEXTURE_2D, renderTexture);
+        columnPixelBuffer.rewind();
         for (int xPos = 0; xPos < rendererWidth; xPos++) {
-            columnPixelBuffer.rewind();
             raycaster.fillStrip(columnPixels, xPos);
             columnPixelBuffer.put(columnPixels);
-            columnPixelBuffer.flip();
-            glTexSubImage2D(GL_TEXTURE_2D, 0, xPos, 0, 1, rendererHeight,
-                    GL_RGBA, GL_UNSIGNED_BYTE, columnPixelBuffer);
         }
+        columnPixelBuffer.flip();
+        //  We purposefully reverse width and height here because our texture is rotated 90 degrees
+        //noinspection SuspiciousNameCombination
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, rendererHeight, rendererWidth,
+                GL_RGBA, GL_UNSIGNED_BYTE, columnPixelBuffer);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -127,6 +133,8 @@ public class Renderer {
         glViewport(0, 0, displayWidth, displayHeight);
         glOrtho(0, displayWidth, displayHeight, 0, -1, 1);
         glMatrixMode(GL_MODELVIEW);
+        //  Render a fullscreen quad
+        //  The texture coordinates are rotated 90 degrees since our output texture is rotated 90 degrees
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, renderTexture);
         glEnable(GL_BLEND);
@@ -135,11 +143,11 @@ public class Renderer {
         glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(0, 0);
         glVertex2f(0, 0);
-        glTexCoord2f(0, renderTextureV);
+        glTexCoord2f(renderTextureU, 0);
         glVertex2f(0, displayHeight);
         glTexCoord2f(renderTextureU, renderTextureV);
         glVertex2f(displayWidth, displayHeight);
-        glTexCoord2f(renderTextureU, 0);
+        glTexCoord2f(0, renderTextureV);
         glVertex2f(displayWidth, 0);
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
