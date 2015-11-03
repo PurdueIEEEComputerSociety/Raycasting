@@ -66,7 +66,7 @@ public class Renderer {
     /**
      * The buffer containing the pixel data
      */
-    private IntBuffer columnPixelBuffer;
+    private IntBuffer renderTextureBuffer;
     /**
      * The color to clear the output texture to before painting with the raycaster
      */
@@ -97,7 +97,7 @@ public class Renderer {
         glBindTexture(GL_TEXTURE_2D, 0);
         //  Create our buffers
         columnPixels = new int[rendererHeight];
-        columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
+        renderTextureBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
                 order(ByteOrder.BIG_ENDIAN).
                 asIntBuffer();
     }
@@ -110,7 +110,7 @@ public class Renderer {
         rendererHeight = displayHeight;
         //  Resize buffers
         columnPixels = new int[rendererHeight];
-        columnPixelBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
+        renderTextureBuffer = BufferUtils.createByteBuffer(rendererHeight * rendererWidth * Integer.BYTES).
                 order(ByteOrder.BIG_ENDIAN).
                 asIntBuffer();
         //  Resize texture
@@ -147,16 +147,16 @@ public class Renderer {
     public void renderFrame() {
         //  Repeatedly fetch a column of pixels from the raycaster
         glBindTexture(GL_TEXTURE_2D, renderTexture);
-        columnPixelBuffer.rewind();
+        renderTextureBuffer.rewind();
         for (int xPos = 0; xPos < rendererWidth; xPos++) {
             raycaster.fillStrip(columnPixels, xPos);
-            columnPixelBuffer.put(columnPixels);
+            renderTextureBuffer.put(columnPixels);
         }
-        columnPixelBuffer.flip();
+        renderTextureBuffer.flip();
         //  We purposefully reverse width and height here because our texture is rotated 90 degrees
         //noinspection SuspiciousNameCombination
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, rendererHeight, rendererWidth,
-                GL_RGBA, GL_UNSIGNED_BYTE, columnPixelBuffer);
+                GL_RGBA, GL_UNSIGNED_BYTE, renderTextureBuffer);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
